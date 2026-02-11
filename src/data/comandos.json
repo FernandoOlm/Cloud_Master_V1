@@ -149,6 +149,11 @@
   "function": "comandotic",
   "admin": true
 },
+"!tiro": {
+  "file": "../commands/tiro.js",
+  "function": "comandotiro",
+  "admin": true
+},
 "!sorteio": {
   "file": "../commands/sorteio.js",
   "function": "comandoSorteio",
