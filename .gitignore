@@ -1,0 +1,2 @@
+echo "src/core/.env" >> .gitignore.env
+.env
