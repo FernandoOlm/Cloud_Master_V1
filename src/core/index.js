@@ -40,26 +40,41 @@ import {
 } from "../commands/ban.js";
 
 
+// --------------------------------------------------------
+// SISTEMA DE BOAS-VINDAS — JSON (VERSÃO ESM CORRIGIDA)
+// --------------------------------------------------------
 
-// --------------------------------------------------------
-// SISTEMA DE BOAS-VINDAS — JSON
-// --------------------------------------------------------
+
+
+import { fileURLToPath } from "url";
+
+// Criar __dirname em ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Caminho correto
 const bvPath = path.join(__dirname, "../data/bv.json");
 
+// --------------------------------------------------------
+// GARANTE QUE O ARQUIVO EXISTE
+// --------------------------------------------------------
 function ensureBVFile() {
   if (!fs.existsSync(bvPath)) {
     fs.writeFileSync(bvPath, JSON.stringify({ grupos: {} }, null, 2));
   }
 }
-function loadBV() {
-  if (!fs.existsSync(bvPath)) {
-    fs.writeFileSync(bvPath, JSON.stringify({ grupos: {} }, null, 2));
-  }
-console.log("📂 Lendo BV de:", bvPath);
+
+// --------------------------------------------------------
+// CARREGAR
+// --------------------------------------------------------
+export function loadBV() {
+  ensureBVFile();
+
+  console.log("📂 Lendo BV de:", bvPath);
+
   try {
     const raw = fs.readFileSync(bvPath, "utf8").trim();
-    if (!raw) throw new Error("empty"); // arquivo vazio
-
+    if (!raw) throw new Error("empty");
     return JSON.parse(raw);
   } catch (e) {
     console.log("⚠ bv.json corrompido. Restaurando padrão...");
@@ -68,11 +83,19 @@ console.log("📂 Lendo BV de:", bvPath);
     return clean;
   }
 }
-function saveBV(data) {
+
+// --------------------------------------------------------
+// SALVAR
+// --------------------------------------------------------
+export function saveBV(data) {
   fs.writeFileSync(bvPath, JSON.stringify(data, null, 2));
 }
-function criarBV(grupoId, mensagem) {
-  if (!grupoId.endsWith("@g.us")) return false;  // garante que só salva JID real
+
+// --------------------------------------------------------
+// CRIAR / EDITAR
+// --------------------------------------------------------
+export function criarBV(grupoId, mensagem) {
+  if (!grupoId.endsWith("@g.us")) return false;
 
   const bv = loadBV();
   bv.grupos[grupoId] = {
@@ -81,33 +104,39 @@ function criarBV(grupoId, mensagem) {
     atualizado: new Date().toISOString(),
   };
   saveBV(bv);
+  return true;
 }
-function ativarBV(grupoId) {
+
+// --------------------------------------------------------
+// ATIVAR
+// --------------------------------------------------------
+export function ativarBV(grupoId) {
   const bv = loadBV();
   if (!bv.grupos[grupoId]) return false;
   bv.grupos[grupoId].ativo = true;
   saveBV(bv);
   return true;
 }
-function desativarBV(grupoId) {
+
+// --------------------------------------------------------
+// DESATIVAR
+// --------------------------------------------------------
+export function desativarBV(grupoId) {
   const bv = loadBV();
   if (!bv.grupos[grupoId]) return false;
   bv.grupos[grupoId].ativo = false;
   saveBV(bv);
   return true;
 }
-function deletarBV(grupoId) {
-  const bv = loadBV();
-  if (!bv.grupos[grupoId]) return false;
-  delete bv.grupos[grupoId];
-  saveBV(bv);
-  return true;
-}
-function lerBV(grupoId) {
+
+// --------------------------------------------------------
+// LER
+// --------------------------------------------------------
+export function lerBV(grupoId) {
   const bv = loadBV();
   return bv.grupos[grupoId] || null;
 }
-// --------------------------------------------------------
+
 
 const ROOT = process.env.ROOT_ID;
 
