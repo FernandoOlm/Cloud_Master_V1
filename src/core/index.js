@@ -44,7 +44,7 @@ import {
 // --------------------------------------------------------
 // SISTEMA DE BOAS-VINDAS — JSON
 // --------------------------------------------------------
-const bvPath = path.join("data", "bv.json");
+const bvPath = path.join(__dirname, "../data/bv.json");
 
 function ensureBVFile() {
   if (!fs.existsSync(bvPath)) {

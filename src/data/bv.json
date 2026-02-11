@@ -20,9 +20,10 @@
       "ativo": true,
       "atualizado": "2026-02-09T01:11:45.067Z"
     },
-      "120363406086475158@g.us": {
+    "120363406086475158@g.us": {
       "ativo": true,
-      "mensagem": "Grupo de teste BotCloud 24/7"
+      "mensagem": "Grupo de teste BotCloud 24/7",
+      "atualizado": "2026-02-09T00:00:00.000Z"
     }
   }
 }
