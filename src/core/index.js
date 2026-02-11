@@ -55,7 +55,7 @@ function loadBV() {
   if (!fs.existsSync(bvPath)) {
     fs.writeFileSync(bvPath, JSON.stringify({ grupos: {} }, null, 2));
   }
-
+console.log("📂 Lendo BV de:", bvPath);
   try {
     const raw = fs.readFileSync(bvPath, "utf8").trim();
     if (!raw) throw new Error("empty"); // arquivo vazio
