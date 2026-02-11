@@ -242,28 +242,55 @@ async function startBot_Unique01() {
     }
   });
 
-// ================================
-// EVENTO DE ENTRADA DE PARTICIPANTES
-// ================================
-conn.ev.on("group-participants.update", async (update) => {
-  const { id, participants, action } = update;
+// --------------------------------------------------------
+// ENTRADA NO GRUPO (BAN + BV REAL)
+// --------------------------------------------------------
+sock.ev.on("group-participants.update", async (update) => {
+  console.log("🔥 EVENTO DE ENTRADA →", JSON.stringify(update, null, 2));
 
-  if (action !== "add") return;
+  // Só processa entradas
+  if (update.action !== "add") return;
 
-  // Carrega BV do grupo
-  const bvData = lerBV(id);
+  const grupoId = update.id;
+  const bvConfig = lerBV(grupoId);
 
-  // Se não existe ou está desativado → sai fora
-  if (!bvData || !bvData.ativo) return;
+  // Se BV não existe ou BV está desativada → apenas ignora
+  if (!bvConfig || !bvConfig.ativo) {
+    console.log("🚫 BV DESATIVADA ou NÃO CONFIGURADA para:", grupoId);
+    return;
+  }
 
-  const mensagem = bvData.mensagem;
-
-  for (let user of participants) {
+  // Loop real dos usuários que entraram
+  for (const usuario of update.participants) {
     try {
-      await conn.sendMessage(id, { text: mensagem, mentions: [user] });
-      console.log(`BV enviada para ${user} no grupo ${id}`);
-    } catch (err) {
-      console.error("Erro ao enviar BV:", err);
+      const numero = usuario.replace(/@.*/, "");
+
+      // 1) Banimento automático
+      const banDetectado = await banCheckEntrada_Unique01(sock, grupoId, usuario);
+      if (banDetectado) {
+        console.log(`⛔ Usuário banido bloqueado: ${numero}`);
+        continue;
+      }
+
+      // 2) BOAS-VINDAS (mensagem 1)
+      await sock.sendMessage(grupoId, {
+        text: `👋 Olá @${numero}!`,
+        mentions: [usuario],
+      });
+
+      // micro-delay pra evitar flood
+      await new Promise((r) => setTimeout(r, 300));
+
+      // 3) Mensagem configurada de BV (mensagem 2)
+      await sock.sendMessage(grupoId, {
+        text: bvConfig.mensagem,
+        mentions: [usuario],
+      });
+
+      console.log(`✨ BV enviada com sucesso para ${numero}`);
+
+    } catch (e) {
+      console.log("❌ Erro ao enviar BV:", e);
     }
   }
 });
